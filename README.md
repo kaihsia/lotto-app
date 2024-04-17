@@ -1,0 +1,3 @@
+# lotto-app
+ 
+I wrote this because I was bored and I was a little rusty in node, and coding in general.  I miss it...
