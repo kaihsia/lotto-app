@@ -56,13 +56,14 @@ function findDuplicatesInArray(arrays) {
     arrays.forEach(obj => {
         const key = JSON.stringify(obj.numbers);
         if (uniqueElements.has(key)) {
-            if (!uniqueElements.get(key).hasOwnProperty('firstOccurrence')) {
-                uniqueElements.get(key).firstOccurrence = uniqueElements.get(key);
-                uniqueElements.get(key).allOccurrences = [uniqueElements.get(key).firstOccurrence];
+            const existingObj = uniqueElements.get(key);
+            if (!existingObj.hasOwnProperty('firstOccurrence')) {
+                existingObj.firstOccurrence = { ...existingObj };
+                existingObj.allOccurrences = [existingObj.firstOccurrence];
             }
-            uniqueElements.get(key).allOccurrences.push(obj);
+            existingObj.allOccurrences.push({ ...obj });
         } else {
-            uniqueElements.set(key, obj);
+            uniqueElements.set(key, { ...obj });
         }
     });
 
