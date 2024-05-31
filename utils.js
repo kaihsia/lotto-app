@@ -131,9 +131,11 @@ function logResults(description, dataArray, pickedNumbers) {
     const matches = findMatchingArrays(dataArray, pickedNumbers);
     const duplicates = findDuplicatesInArray(dataArray);
     const numberOfPicks = dataArray.length;
+    const { date, numbers } = dataArray[0] // Latest drawing
 
     console.log('==========================================================');
     console.log(description);
+    console.log(`Most recent drawing on ${date}: ${numbers}`);
     console.log(`Is it accurate? ${isAccurate}`);
     console.log(`Any matches? ${JSON.stringify(matches)}`);
     console.log(`Any duplicates? ${duplicates.map(d => `${d.date}: [${d.numbers.join(', ')}]`).join(' , ')}`);
