@@ -126,24 +126,33 @@ function createApiOptions (url, host) {
     }
 }
 
-async function fetchDataAndProcess(filePath, options, outputFilePath) {
+function logResults(description, dataArray, pickedNumbers) {
+    const isAccurate = verifyArrayLengths(dataArray);
+    const matches = findMatchingArrays(dataArray, pickedNumbers);
+    const duplicates = findDuplicatesInArray(dataArray);
+    const numberOfPicks = dataArray.length;
+
+    console.log('==========================================================');
+    console.log(description);
+    console.log(`Is it accurate? ${isAccurate}`);
+    console.log(`Any matches? ${JSON.stringify(matches)}`);
+    console.log(`Any duplicates? ${duplicates.map(d => `${d.date}: [${d.numbers.join(', ')}]`).join(' , ')}`);
+    console.log(`Number of picks: ${numberOfPicks}`);
+    console.log('==========================================================');
+}
+
+async function fetchAndLogResults(name, resultsFile, apiUrl, apiHost, dataFile, pickedNumbers) {
     try {
-      await fetchAPI(filePath, options);
-      await transformAndWriteToJson(filePath, outputFilePath);
-      return readArrayFromFile(outputFilePath);
+        const apiOptions = createApiOptions(apiUrl, apiHost);
+        await fetchAPI(resultsFile, apiOptions);
+        await transformAndWriteToJson(resultsFile, dataFile);
+        const resultArray = readArrayFromFile(dataFile);
+        logResults(name, resultArray, pickedNumbers);
     } catch (error) {
-      console.error("Error:", filePath, error);
-      throw error;
+        console.error(`Error processing ${name}:`, error);
     }
 }
 
 module.exports = {
-    transformAndWriteToJson,
-    verifyArrayLengths,
-    findMatchingArrays,
-    findDuplicatesInArray,
-    fetchAPI,
-    readArrayFromFile,
-    createApiOptions,
-    fetchDataAndProcess,
+    fetchAndLogResults,
 }
