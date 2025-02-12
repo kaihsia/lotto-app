@@ -126,7 +126,7 @@ function createApiOptions (url, host) {
     }
 }
 
-function logResults(description, dataArray, pickedNumbers) {
+function logResults(description, dataArray, pickedNumbers, randomNumbers) {
     const isAccurate = verifyArrayLengths(dataArray);
     const matches = findMatchingArrays(dataArray, pickedNumbers);
     const duplicates = findDuplicatesInArray(dataArray);
@@ -140,6 +140,7 @@ function logResults(description, dataArray, pickedNumbers) {
     console.log(`Any matches? ${JSON.stringify(matches)}`);
     console.log(`Any duplicates? ${duplicates.map(d => `${d.date}: [${d.numbers.join(', ')}]`).join(' , ')}`);
     console.log(`Number of picks: ${numberOfPicks}`);
+    console.log(`Random pick: ${JSON.stringify(randomNumbers)}`);
     console.log('==========================================================');
 }
 
@@ -149,10 +150,64 @@ async function fetchAndLogResults(name, resultsFile, apiUrl, apiHost, dataFile, 
         await fetchAPI(resultsFile, apiOptions);
         await transformAndWriteToJson(resultsFile, dataFile);
         const resultArray = readArrayFromFile(dataFile);
-        logResults(name, resultArray, pickedNumbers);
+        const randomNumbers = generateBothLotteryGames(name, resultArray);
+        logResults(name, resultArray, pickedNumbers, randomNumbers);
     } catch (error) {
         console.error(`Error processing ${name}:`, error);
     }
+}
+
+function isNumberSetUnique(newNumbers, previousDraws, isPowerNumber = false) {
+    if (isPowerNumber) {
+        return !previousDraws.some(draw => 
+            draw.numbers[5] === newNumbers[5]
+        );
+    }
+    
+    const newSet = [...newNumbers.slice(0, 5)].sort().join(',');
+    return !previousDraws.some(draw => {
+        const prevSet = [...draw.numbers.slice(0, 5)].sort().join(',');
+        return prevSet === newSet;
+    });
+}
+
+function generateUniqueRandomNumbers(game, previousDraws) {
+    const games = {
+        POWERBALL: [69, 26],
+        MEGAMILLION: [70, 25]
+    }
+    const mainCount = 5;
+    let attempts = 0;
+    const maxAttempts = 1000;
+    
+    while (attempts < maxAttempts) {
+        const numbers = Array.from({ length: games[game][0] }, (_, i) => i + 1);
+        
+        for (let i = 0; i < mainCount; i++) {
+            const j = Math.floor(Math.random() * (games[game][0] - i)) + i;
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        
+        const powerNumber = Math.floor(Math.random() * games[game][1]) + 1;
+        const generatedNumbers = [...numbers.slice(0, mainCount), powerNumber];
+        
+        if (isNumberSetUnique(generatedNumbers, previousDraws)) {
+            const sortedFirstFive = generatedNumbers.slice(0, 5).sort((a, b) => a - b);
+            return [...sortedFirstFive, generatedNumbers[5]];;
+        }
+        
+        attempts++;
+    }
+    
+    throw new Error('Maxed out attempted to generate numbers');
+}
+
+function generateBothLotteryGames(game,previousDraws = []) {
+    if (!Array.isArray(previousDraws)) {
+        throw new Error('previousDraws is not an array');
+    }
+
+    return generateUniqueRandomNumbers(game, previousDraws);
 }
 
 module.exports = {
