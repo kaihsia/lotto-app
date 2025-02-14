@@ -1,7 +1,7 @@
 const fs = require('fs');
 const axios = require('axios');
 
-async function fetchAPI(filePath, options) {
+const fetchAPI = async (filePath, options) => {
     try {
         const response = await axios.request(options);
         const { data } = response.data;
@@ -19,7 +19,7 @@ async function fetchAPI(filePath, options) {
     }
 }
 
-function transformArray(inputArray) {
+const transformArray = (inputArray) => {
     return inputArray.map(obj => {
         const { DrawingDate, FirstNumber, SecondNumber, ThirdNumber, FourthNumber, FifthNumber, PowerBall, MegaBall } = obj;
         
@@ -31,11 +31,11 @@ function transformArray(inputArray) {
     });
 }
 
-function verifyArrayLengths(nestedArrays) {
+const verifyArrayLengths = (nestedArrays) => {
     return nestedArrays.every(obj => obj.numbers.length === 6);
 }
 
-function findMatchingArrays(arrayA, arrayB) {
+const findMatchingArrays = (arrayA, arrayB) => {
     const matches = [];
 
     arrayA.forEach(a => {
@@ -49,7 +49,7 @@ function findMatchingArrays(arrayA, arrayB) {
     return matches;
 }
 
-function findDuplicatesInArray(arrays) {
+const findDuplicatesInArray = (arrays) => {
     const uniqueElements = new Map();
     const duplicates = [];
 
@@ -76,7 +76,7 @@ function findDuplicatesInArray(arrays) {
     return duplicates;
 }
 
-function transformAndWriteToJson(inputFilePath, outputFilePath) {
+const transformAndWriteToJson = (inputFilePath, outputFilePath) => {
     try {
       const inputData = fs.readFileSync(inputFilePath, 'utf8');
       const inputArray = JSON.parse(inputData);
@@ -105,7 +105,7 @@ function transformAndWriteToJson(inputFilePath, outputFilePath) {
     }
 }
   
-function readArrayFromFile(filePath) {
+const readArrayFromFile = (filePath) => {
     try {
       const jsonData = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(jsonData);
@@ -115,7 +115,7 @@ function readArrayFromFile(filePath) {
     }
 }
 
-function createApiOptions (url, host) {
+const createApiOptions = (url, host) => {
     return {
         method: 'GET',
         url,
@@ -126,7 +126,7 @@ function createApiOptions (url, host) {
     }
 }
 
-function logResults(description, dataArray, pickedNumbers, randomNumbers) {
+const logResults = (description, dataArray, pickedNumbers, randomNumbers) => {
     const isAccurate = verifyArrayLengths(dataArray);
     const matches = findMatchingArrays(dataArray, pickedNumbers);
     const duplicates = findDuplicatesInArray(dataArray);
@@ -134,17 +134,17 @@ function logResults(description, dataArray, pickedNumbers, randomNumbers) {
     const { date, numbers } = dataArray[0] // Latest drawing
 
     console.log('==========================================================');
-    console.log(description);
+    console.log(`Drawing for ${description}`);
     console.log(`Most recent drawing on ${date}: ${numbers}`);
     console.log(`Is it accurate? ${isAccurate}`);
     console.log(`Any matches? ${JSON.stringify(matches)}`);
-    console.log(`Any duplicates? ${duplicates.map(d => `${d.date}: [${d.numbers.join(', ')}]`).join(' , ')}`);
+    console.log(`Any duplicates? ${duplicates?.length ? '\n' : ''}${duplicates.map(d => `${d.date}: [${d.numbers.join(', ')}]`).join(' \n')}`);
     console.log(`Number of picks: ${numberOfPicks}`);
     console.log(`Random pick: ${JSON.stringify(randomNumbers)}`);
     console.log('==========================================================');
 }
 
-async function fetchAndLogResults(name, resultsFile, apiUrl, apiHost, dataFile, pickedNumbers) {
+const fetchAndLogResults = async (name, resultsFile, apiUrl, apiHost, dataFile, pickedNumbers) => {
     try {
         const apiOptions = createApiOptions(apiUrl, apiHost);
         await fetchAPI(resultsFile, apiOptions);
@@ -157,7 +157,7 @@ async function fetchAndLogResults(name, resultsFile, apiUrl, apiHost, dataFile, 
     }
 }
 
-function isNumberSetUnique(newNumbers, previousDraws, isPowerNumber = false) {
+const isNumberSetUnique = (newNumbers, previousDraws, isPowerNumber = false) => {
     if (isPowerNumber) {
         return !previousDraws.some(draw => 
             draw.numbers[5] === newNumbers[5]
@@ -171,7 +171,7 @@ function isNumberSetUnique(newNumbers, previousDraws, isPowerNumber = false) {
     });
 }
 
-function generateUniqueRandomNumbers(game, previousDraws) {
+const generateUniqueRandomNumbers = (game, previousDraws) => {
     const games = {
         POWERBALL: [69, 26],
         MEGAMILLION: [70, 25]
@@ -202,7 +202,7 @@ function generateUniqueRandomNumbers(game, previousDraws) {
     throw new Error('Maxed out attempted to generate numbers');
 }
 
-function generateBothLotteryGames(game,previousDraws = []) {
+const generateBothLotteryGames = (game,previousDraws = []) => {
     if (!Array.isArray(previousDraws)) {
         throw new Error('previousDraws is not an array');
     }

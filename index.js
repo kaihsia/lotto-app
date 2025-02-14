@@ -18,7 +18,7 @@ const pickedNumbers = {
     powerball: require(`${apiBasePath}/myPowerPickedNumbers`)
 };
 
-async function processLotteryResults() {
+const processLotteryResults = async () => {
   try {
       await Promise.all([
           fetchAndLogResults(
